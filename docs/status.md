@@ -1,7 +1,7 @@
 # Status
 
 Describes what is implemented and verified right now. Updated after each completed stage.
-Last updated: after stage 14 (Jev 1.14 analyzer). Plan steps are in `plan.md`; targets Q1-Q10 in `spec.md`.
+Last updated: after stage 15 (Jev vs Luna on a synthetic file). Plan steps are in `plan.md`; targets Q1-Q10 in `spec.md`.
 
 ## Stages
 
@@ -10,6 +10,7 @@ Last updated: after stage 14 (Jev 1.14 analyzer). Plan steps are in `plan.md`; t
 | 0-12 (plan.md) | done | Backend, UI, eval, docs, screenshots. |
 | 13 Repository setup | done | Git repo, private GitHub remote, this document. |
 | 14 Jev 1.14 analyzer | done | `ANALYZER=jev`; bake-off rows for 1.14 and 1.13; docs corrected. |
+| 15 Jev vs Luna on a synthetic file | done | `samples/synthetic_reviews.csv`; results in "Jev vs Luna on a synthetic file". |
 
 ## Implemented
 
@@ -95,6 +96,32 @@ Every candidate met every target, so the set does not separate them. Default by 
 
 Jev 1.14 and 1.13 gave identical accuracy; both missed one `normal` review. `jev-router` is a chat-model router (three
 different serving models in one run), not the Jev decision model. Jev cost covers analysis only; suggestions are extra.
+
+## Jev vs Luna on a synthetic file
+
+`samples/synthetic_reviews.csv`: 64 hand-written fictional reviews with a `stars` column as reference (themes are not
+labeled). Mix: normal, sarcasm, mixed, one-liners, typos, emoji, Finnish/Spanish/German/French/Estonian, one prompt
+injection. Compared `openai/gpt-6-luna` (low reasoning) and `typesafe/jev-1.14`, same runner (batches of 25, 4 concurrent).
+
+| Measure | GPT-6 Luna low | Jev 1.14 |
+|---|---|---|
+| Analysis time, direct, 2 runs | 6.9 s, 6.6 s | 3.4 s, 3.2 s |
+| Analysis time through the API, 2 runs | 7.5 s, 13.1 s | 5.0 s, 3.3 s |
+| Analysis cost, 64 reviews (2 runs) | $0.0011, $0.0012 | $0.0015, $0.0015 |
+| Cost per 100 reviews | $0.0017-0.0018 | $0.0023 |
+| Sentiment label matches stars | 97% | 97% |
+| Score within +/-1 of stars | 98% | 98% |
+| Exact score equals stars | 75% | 86% |
+| Failed reviews | 0 | 0 |
+
+- Both analyzers agree on the sentiment label for 62 of 64 reviews and on the theme for 57 of 64. Theme disagreements are
+  mostly reviews with two topics (for example "sticky tables but fine food", Finnish "cold food and arrogant waiter").
+- Suggestion step (26 negative reviews, same chat model for both): 6-7 s and about $0.0005 in addition.
+- Full job through the API (analysis plus suggestions): Luna 14.9 s and 19.0 s; Jev 11.6 s and 10.0 s. The very first Jev job
+  on a fresh server took 24.8 s (cause not investigated; later jobs did not repeat it).
+- Jev is about 2x faster at analysis and about 30% more expensive per review; in absolute terms the cost gap is $0.0005
+  per 100 reviews. Exact-score agreement with the stars was higher for Jev. One file, one writer, two runs each: indicative
+  only. The default model is unchanged.
 
 ## Jev
 
