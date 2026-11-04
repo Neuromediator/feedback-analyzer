@@ -1,7 +1,7 @@
 # Status
 
 Describes what is implemented and verified right now. Updated after each completed stage.
-Last updated: after stage 15 (Jev vs Luna on a synthetic file). Plan steps are in `plan.md`; targets Q1-Q10 in `spec.md`.
+Last updated: after stage 16 (delete all saved reviews). Plan steps are in `plan.md`; targets Q1-Q10 in `spec.md`.
 
 ## Stages
 
@@ -11,6 +11,7 @@ Last updated: after stage 15 (Jev vs Luna on a synthetic file). Plan steps are i
 | 13 Repository setup | done | Git repo, private GitHub remote, this document. |
 | 14 Jev 1.14 analyzer | done | `ANALYZER=jev`; bake-off rows for 1.14 and 1.13; docs corrected. |
 | 15 Jev vs Luna on a synthetic file | done | `samples/synthetic_reviews.csv`; results in "Jev vs Luna on a synthetic file". |
+| 16 Delete all saved reviews | done | `DELETE /reviews`, "Delete all" button with confirmation. |
 
 ## Implemented
 
@@ -42,13 +43,14 @@ Last updated: after stage 15 (Jev vs Luna on a synthetic file). Plan steps are i
 - `db.py`: `reviews` (unique `text_hash`) and `themes` tables, default themes (food, service, wait, price, cleanliness,
   ambiance, portions, other), add theme, save with saved/skipped counts, list by theme newest first, delete.
 - Routes: `GET /health`, `POST /files/parse`, `POST /jobs`, `GET /jobs/{id}`, `POST /jobs/{id}/retry`, `GET/POST /themes`,
-  `POST /reviews`, `GET /reviews?theme=`, `DELETE /reviews/{id}`. App factory: `app.main:create_app` (run with `--factory`).
+  `POST /reviews`, `GET /reviews?theme=`, `DELETE /reviews/{id}`, `DELETE /reviews` (all saved reviews, returns `{deleted}`). App factory: `app.main:create_app` (run with `--factory`).
 
 ### UI (`ui/`, Streamlit)
 
 Text area, file uploader with "Load into text box" and column picker, theme sidebar with add-theme, Analyze with progress bar,
 summary tiles, theme bar chart, sentiment filter, results table with suggestions, Save to database (saved/skipped notice),
-Retry failed, Saved history with theme filter and per-row delete, friendly errors for API down and API failure.
+Retry failed, Saved history with theme filter, per-row delete and a "Delete all" button (asks for confirmation; deletes every saved
+review even when a theme filter is active), friendly errors for API down and API failure.
 The UI is unchanged by the analyzer choice.
 
 ### Evaluation (`eval/`)
@@ -62,12 +64,12 @@ The UI is unchanged by the analyzer choice.
 ### Other
 
 - `samples/`: txt, csv (with a multi-line review), wrapped json, csv with ambiguous columns.
-- `docs/`: spec, architecture, plan, bakeoff, this file, 7 Playwright screenshots in `docs/screenshots/`.
+- `docs/`: spec, architecture, plan, bakeoff, this file, 9 Playwright screenshots in `docs/screenshots/`.
 - `README.md`: overview, setup, tests, model table, limitations.
 
 ## Verified
 
-- 66 offline tests pass (25 in `tests/test_core.py`, 24 in `tests/test_backend.py`, 17 in `tests/test_jev.py`).
+- 67 offline tests pass (25 in `tests/test_core.py`, 25 in `tests/test_backend.py`, 17 in `tests/test_jev.py`).
   Two live tests pass (`pytest -m live`): chat analyzer plus suggester, and Jev analyzer.
 - Ruff check and format clean.
 - Jev end to end: API started with `ANALYZER=jev`, the 16 sample reviews were analyzed by `typesafe/jev-1.14-20261014`,
@@ -76,6 +78,9 @@ The UI is unchanged by the analyzer choice.
   column picker), analyze, summary, chart, negative filter, suggestions, save, duplicate save (0 saved, 10 skipped), history
   filter, delete, persistence across reload, custom theme, invalid theme, API down, bad key (failed banner, Retry failed does
   not crash).
+- Delete all in the browser (isolated API and UI on other ports, throwaway database with 3 saved reviews): button, confirmation,
+  Cancel keeps the rows, confirm deletes them, success notice and empty history; screenshots 08 and 09. Your real
+  `feedback.db` was not touched.
 - Clean-checkout run (earlier stage): copy without `.venv`, `.env`, database ran `uv sync`, 49 tests passed, `/health` served.
 
 ## Bake-off result (100 synthetic reviews, second run)

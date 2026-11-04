@@ -16,6 +16,11 @@ def list_reviews(request: Request, theme: str | None = None):
     return request.app.state.db.list_reviews(theme)
 
 
+@router.delete("/reviews")
+def delete_all_reviews(request: Request):
+    return {"deleted": request.app.state.db.delete_all()}
+
+
 @router.delete("/reviews/{review_id}", status_code=204)
 def delete_review(review_id: int, request: Request):
     if not request.app.state.db.delete_review(review_id):

@@ -115,3 +115,8 @@ class Db:
     def delete_review(self, review_id: int) -> bool:
         with self._connect() as conn:
             return conn.execute("DELETE FROM reviews WHERE id = ?", (review_id,)).rowcount > 0
+
+    def delete_all(self) -> int:
+        """Delete every saved review and return how many were removed."""
+        with self._connect() as conn:
+            return conn.execute("DELETE FROM reviews").rowcount

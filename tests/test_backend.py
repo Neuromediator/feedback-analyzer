@@ -37,6 +37,15 @@ def test_db_save_skip_list_delete(tmp_path):
     assert db.delete_review(rows[0]["id"]) is False
 
 
+def test_db_delete_all(tmp_path):
+    db = Db(str(tmp_path / "t.db"))
+    assert db.delete_all() == 0
+    db.save_reviews([item("A nice place"), item("Bad soup", 1, "food")])
+    assert db.delete_all() == 2
+    assert db.list_reviews() == []
+    assert db.save_reviews([item("A nice place")]) == (1, 0)  # hashes are gone too
+
+
 def test_db_themes(tmp_path):
     db = Db(str(tmp_path / "t.db"))
     assert db.themes()[0] == "food" and "other" in db.themes()
@@ -223,6 +232,9 @@ def test_full_flow(client):
         assert c.delete(f"/reviews/{saved[0]['id']}").status_code == 204
         assert c.delete(f"/reviews/{saved[0]['id']}").status_code == 404
         assert len(c.get("/reviews").json()) == 3
+        assert c.delete("/reviews").json() == {"deleted": 3}
+        assert c.get("/reviews").json() == []
+        assert c.delete("/reviews").json() == {"deleted": 0}
 
 
 def test_job_input_errors(client):

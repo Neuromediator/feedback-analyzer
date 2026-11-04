@@ -154,6 +154,7 @@ Saving uses `INSERT ... ON CONFLICT(text_hash) DO NOTHING` and counts inserted v
 | `POST /reviews` | Save results -> `{saved, skipped}`. Rejects `failed` items. |
 | `GET /reviews?theme=` | Saved history, newest first. |
 | `DELETE /reviews/{id}` | Delete one saved row. |
+| `DELETE /reviews` | Delete all saved rows -> `{deleted}`. The UI asks for confirmation first. |
 
 ## 6. Configuration
 

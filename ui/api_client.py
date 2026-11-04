@@ -70,3 +70,7 @@ def list_reviews(theme: str | None = None) -> list[dict]:
 
 def delete_review(review_id: int) -> None:
     _request("DELETE", f"/reviews/{review_id}")
+
+
+def delete_all_reviews() -> int:
+    return _request("DELETE", "/reviews")["deleted"]

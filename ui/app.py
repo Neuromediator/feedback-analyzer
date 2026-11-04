@@ -69,6 +69,19 @@ def delete_saved(review_id: int) -> None:
         st.session_state.notice = ("error", str(e))
 
 
+def set_confirm_delete_all(value: bool) -> None:
+    st.session_state.confirm_delete_all = value
+
+
+def delete_all_saved() -> None:
+    st.session_state.confirm_delete_all = False
+    try:
+        count = api.delete_all_reviews()
+        st.session_state.history_notice = ("success", f"Deleted {count} saved reviews.")
+    except api.ApiError as e:
+        st.session_state.history_notice = ("error", str(e))
+
+
 def save_results() -> None:
     ok = [r for r in st.session_state.job["results"] if r["status"] == "ok"]
     try:
@@ -159,8 +172,22 @@ def show_results(job: dict) -> None:
 # ---- history ----
 
 
+def show_delete_all() -> None:
+    """Delete-all button; asks for confirmation because it removes every saved review."""
+    if not st.session_state.get("confirm_delete_all"):
+        st.button("Delete all", on_click=set_confirm_delete_all, args=(True,))
+        return
+    st.warning(
+        "Delete all saved reviews, including any hidden by the filter? This cannot be undone."
+    )
+    yes, no, _ = st.columns([2.6, 1.8, 3])
+    yes.button("Yes, delete all", type="primary", on_click=delete_all_saved)
+    no.button("Cancel", on_click=set_confirm_delete_all, args=(False,))
+
+
 def show_history(themes: list[str]) -> None:
     st.header("Saved history")
+    show_notice("history_notice")
     theme = st.selectbox("Filter by theme", ["All"] + themes, key="history_theme")
     try:
         rows = api.list_reviews(None if theme == "All" else theme)
@@ -171,6 +198,7 @@ def show_history(themes: list[str]) -> None:
         st.info("Nothing saved yet.")
         return
     st.caption(f"{len(rows)} saved reviews")
+    show_delete_all()
     widths = [5, 1, 2, 2.2, 5, 1.6]
     for col, label in zip(
         st.columns(widths), ["Review", "Score", "Sentiment", "Theme", "Suggestion", ""]
