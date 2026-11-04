@@ -8,7 +8,7 @@ Design details are in `architecture.md`.
 All steps are done. Step 11 (Jev) was first marked blocked on a wrong assumption (that the classifier was not on
 OpenRouter); it is available as `typesafe/jev-1.14` through the Decisions API and is implemented. Deviations from the plan:
 the input cap is 100 reviews (not 500), the default model is GPT-6 Luna with low reasoning (bake-off result in
-`bakeoff.md`), and the API starts with `--factory`. Verification: 66 offline tests, two live tests (`pytest -m live`), and a
+`bakeoff.md`), and the API starts with `--factory`. Verification: 67 offline tests, two live tests (`pytest -m live`), and a
 Playwright walkthrough of the UI (screenshots in `docs/screenshots/`). Current state: `status.md`.
 
 ## Step 0: Verify unknowns (no app code)
@@ -77,14 +77,15 @@ Build in this order, checking in the browser after each:
 2. Theme bar chart (`st.bar_chart`) and results table with the sentiment dropdown.
 3. File uploader and **Load into text box** (set the text area's session-state key in an `on_click` callback), CSV/JSON column dropdown.
 4. Theme management (add a theme).
-5. **Save to database** with the saved/skipped message; **Saved history** with theme filter and delete.
+5. **Save to database** with the saved/skipped message; **Saved history** with theme filter and delete (later also a confirmed **Delete all**).
 6. Failed-reviews banner and **Retry failed**; friendly errors for missing key or API down.
 - Check: manual walkthrough of the full flow with the sample files; screenshots captured.
 
-## Step 11: Jev analyzer (if accessible)
+## Step 11: Jev analyzer (done)
 
 - `analyzers/jev.py` behind the same interface; add to the bake-off.
 - Check: bake-off row for Jev; if it beats the LLM default on cost within targets, say so in the README; otherwise keep it as a documented option.
+- Result: `analyzers/jev.py` uses `typesafe/jev-1.14` through the OpenRouter Decisions API; bake-off rows added. Jev is about 2x faster at analysis and slightly more expensive than the default, so it is an option (`ANALYZER=jev`), not the default.
 
 ## Step 12: Polish and release check
 

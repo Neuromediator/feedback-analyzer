@@ -12,6 +12,7 @@ complaining about. Results can be saved to a local SQLite database to build a hi
 - Negative reviews also get a one-line **suggestion** on how to fix the problem.
 - The summary shows review count, average score, percent positive, the most mentioned theme and the top complaint.
 - Models run through [OpenRouter](https://openrouter.ai) with strict JSON-schema output, so the model is a setting.
+- Saved history: filter by theme, delete one review or all (with confirmation).
 - Inputs: paste, `.txt`, `.csv`, `.json` / JSON Lines (samples in `samples/`). Up to 100 reviews per analysis.
 
 ## Setup

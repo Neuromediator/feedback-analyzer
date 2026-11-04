@@ -14,7 +14,7 @@ In scope (v1):
 - Input by pasting text, or loading `.txt`, `.csv`, `.json` / JSON Lines files (Google Maps / Yelp style exports) into the text box.
 - Per-review analysis: score 1-5, derived sentiment label, one theme, and a one-line fix suggestion for negative reviews.
 - Results screen: summary, theme bar chart, sentiment-filtered table.
-- Save results to SQLite (`feedback.db`) and browse saved history with a theme filter and row delete.
+- Save results to SQLite (`feedback.db`) and browse saved history with a theme filter, row delete and a confirmed delete-all.
 - Configurable theme list (defaults plus owner-added themes).
 - Model-agnostic analysis through OpenRouter; pluggable analyzer interface with an LLM and a Jev implementation.
 - Evaluation harness (synthetic labeled dataset, model bake-off) whose results are documented.
@@ -22,7 +22,7 @@ In scope (v1):
 Out of scope (v1):
 - Authentication, multi-user, multi-restaurant accounts, hosting or deployment (runs locally only).
 - Review ratings or dates from files (ignored), trend-over-time charts.
-- Removing themes, editing saved rows, clearing all history, export.
+- Removing themes, editing saved rows, export.
 - UI model selector (model is set by env var).
 - Multiple themes per review (one primary theme only; limitation documented).
 - Calling review platforms' APIs directly.
@@ -101,7 +101,7 @@ Below the tiles:
 - Duplicate protection by unique hash of the normalized text. Result message: "Saved 38, skipped 12 already saved".
 - Each row stores text, score, sentiment, theme, suggestion, model, created_at.
 
-**Saved history** section: reads all saved rows (newest first), a theme filter dropdown, and a delete button per row.
+**Saved history** section: reads all saved rows (newest first), a theme filter dropdown, a delete button per row, and a **Delete all** button. Delete all asks for confirmation ("cannot be undone") and removes every saved row, including rows hidden by the theme filter; it then shows "Deleted N saved reviews."
 
 ### 3.7 Progress and errors
 

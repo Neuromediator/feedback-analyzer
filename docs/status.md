@@ -1,7 +1,7 @@
 # Status
 
 Describes what is implemented and verified right now. Updated after each completed stage.
-Last updated: after stage 16 (delete all saved reviews). Plan steps are in `plan.md`; targets Q1-Q10 in `spec.md`.
+Last updated: after stage 17 (docs sync, project_description.md untracked). Plan steps are in `plan.md`; targets Q1-Q10 in `spec.md`.
 
 ## Stages
 
@@ -12,6 +12,7 @@ Last updated: after stage 16 (delete all saved reviews). Plan steps are in `plan
 | 14 Jev 1.14 analyzer | done | `ANALYZER=jev`; bake-off rows for 1.14 and 1.13; docs corrected. |
 | 15 Jev vs Luna on a synthetic file | done | `samples/synthetic_reviews.csv`; results in "Jev vs Luna on a synthetic file". |
 | 16 Delete all saved reviews | done | `DELETE /reviews`, "Delete all" button with confirmation. |
+| 17 Docs sync | done | spec, plan, README updated for delete-all and Jev; `project_description.md` removed from git (kept locally, ignored). |
 
 ## Implemented
 
@@ -140,6 +141,10 @@ injection. Compared `openai/gpt-6-luna` (low reasoning) and `typesafe/jev-1.14`,
 ## Known gaps
 
 - Jev not exercised in the browser UI, only through the API and tests.
+- `app/openrouter.py`: a 200 response whose body is not JSON raises an uncaught `ValueError` (`resp.json()` is outside the `try`).
+- `app/suggester.py` assumes the model reply is a dict with dict items; a list or string would raise `AttributeError`.
+- The 5 MB file limit is checked after the upload is read into memory (the UI caps uploads at 5 MB; direct API calls are not capped earlier).
+- `project_description.md` is still in the git history of the earlier commits (history was not rewritten).
 - Jev score is a probability-weighted position rounded to 1-5; exact-score accuracy was not measured (label and +/-1 only).
 - `.env.example` does not list `ANALYZER` and `JEV_MODEL` (the file is outside what this session may edit); defaults apply.
 - Retry-failed-then-succeed is covered by backend tests only, not in the browser.
