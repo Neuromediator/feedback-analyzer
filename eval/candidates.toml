@@ -1,0 +1,31 @@
+# Models compared by the bake-off. reasoning = OpenRouter reasoning effort (empty = model default).
+
+[[candidate]]
+name = "haiku-5.5"
+model = "anthropic/claude-haiku-5.5"
+
+[[candidate]]
+name = "haiku-5.5 low"
+model = "anthropic/claude-haiku-5.5"
+reasoning = "low"
+
+[[candidate]]
+name = "gpt-6-luna"
+model = "openai/gpt-6-luna"
+
+[[candidate]]
+name = "gpt-6-luna low"
+model = "openai/gpt-6-luna"
+reasoning = "low"
+
+[[candidate]]
+name = "deepseek-v4.1-flash"
+model = "deepseek/deepseek-v4.1-flash-1017"
+
+[[candidate]]
+name = "gemini-3.5-flash-lite"
+model = "google/gemini-3.5-flash-lite"
+
+[[candidate]]
+name = "jev-router"
+model = "typesafe/jev-router"

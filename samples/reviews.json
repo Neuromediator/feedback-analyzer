@@ -1,0 +1,13 @@
+{
+  "business": "Fictional Trattoma",
+  "reviews": [
+    {"stars": 5, "date": "2024-03-01", "text": "The carbonara was incredible, best I have had in years."},
+    {"stars": 1, "date": "2024-03-02", "text": "We waited 50 minutes for a table even though we had a reservation."},
+    {"stars": 1, "date": "2024-03-03", "text": "Our waiter was rude and kept ignoring us."},
+    {"stars": 3, "date": "2024-03-04", "text": "Average food at average prices. Nothing special."},
+    {"stars": 1, "date": "2024-03-05", "text": "Great, another cold soup. Just what I wanted on my birthday."},
+    {"stars": 5, "date": "2024-03-06", "text": "Lovely terrace and cozy lighting, we stayed for hours."},
+    {"stars": 2, "date": "2024-03-07", "text": "Tables were sticky and the restroom was dirty."},
+    {"stars": 2, "date": "2024-03-08", "text": "The steak was overpriced for such a tiny portion."}
+  ]
+}
