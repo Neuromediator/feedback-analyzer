@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.analyzers.jev import JevAnalyzer
 from app.analyzers.llm import LLMAnalyzer
 from app.config import Settings
 from app.db import Db
@@ -22,16 +23,20 @@ def create_app(settings: Settings | None = None, analyzer=None, suggester=None, 
         settings.openrouter_reasoning or None,
     )
 
+    jev = JevAnalyzer(settings.openrouter_api_key, settings.jev_model)
+    default_analyzer = jev if settings.analyzer == "jev" else LLMAnalyzer(llm)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         yield
         await llm.aclose()
+        await jev.aclose()
 
     app = FastAPI(title="Feedback Analyzer", lifespan=lifespan)
     app.state.db = Db(settings.db_path)
     app.state.key_configured = bool(settings.openrouter_api_key)
     app.state.jobs = JobManager(
-        analyzer or LLMAnalyzer(llm), suggester or Suggester(llm), **runner_options
+        analyzer or default_analyzer, suggester or Suggester(llm), **runner_options
     )
 
     @app.get("/health")

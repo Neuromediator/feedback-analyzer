@@ -6,7 +6,7 @@ Two local processes in one uv project:
 
 ```
  Streamlit UI (ui/)  --HTTP/JSON-->  FastAPI (app/)  --HTTPS-->  OpenRouter (LLM analyzer, suggester)
-                                          |            \------>  TypeSafe API (Jev analyzer, optional)
+                                          |            \------>  OpenRouter Decisions API (Jev analyzer, optional)
                                           v
                                     SQLite feedback.db
 ```
@@ -28,7 +28,7 @@ feedback_analyzer/
     analyzers/
       base.py          Analyzer protocol
       llm.py           OpenRouter structured-output analyzer
-      jev.py           Jev classifier analyzer (optional)
+      jev.py           Jev decision-model analyzer (Decisions API, optional)
     suggester.py       second step: suggestions for negative reviews
     runner.py          batching, concurrency, retry, partial failure
     jobs.py            in-memory job store and background execution
@@ -78,10 +78,17 @@ The runner depends only on this protocol, so the bake-off and the app use the sa
 
 ### 3.3 Jev analyzer
 
-Jev is a discriminative classifier (no text generation): input state plus typed questions, output typed values with confidence.
-Mapping: one `score` question (ordered scale, 1-5) and one `choice` question over the theme list per review. Questions are answered in parallel by the model.
-Constraints: 64k token input cap, so batches stay small. It cannot write suggestions, which is why suggestions are a separate LLM step.
-Status: not implemented. Step 0 found that OpenRouter lists only `typesafe/jev-router` (a chat-model router, tested in the bake-off), not the classifier; the classifier needs TypeSafe's early-access API. The `Analyzer` protocol is the plug-in point.
+Jev is a discriminative decision model (no text generation): input state plus typed questions, output typed values with probabilities.
+It is served by OpenRouter as `typesafe/jev-1.14` (latest, default) and `typesafe/jev-1.13`, through the Decisions API
+(`POST https://openrouter.ai/api/alpha/decisions`), not chat completions. The models are absent from `/api/v1/models` but
+visible at `/api/v1/models/<id>/endpoints`. Billing is input tokens only ($0.042 per 1M); the response carries `usage.cost`.
+`typesafe/jev-router` is a different thing: a router that picks a chat model per request.
+
+Implementation (`analyzers/jev.py`): one request per review, `state = {"review": text}`, two questions: a `score` question
+with five ordered criteria (the answer is a position 0-4, mapped to 1-5 by rounding) and a `choice` question over the active
+theme list. Requests run through a semaphore of 8. A failed request omits that review so the runner retries it; a fatal error
+(bad key, no credits) propagates. It cannot write suggestions, which is why suggestions are a separate LLM step.
+Select it with `ANALYZER=jev` (model from `JEV_MODEL`).
 
 ### 3.4 Suggester
 
@@ -151,7 +158,8 @@ Saving uses `INSERT ... ON CONFLICT(text_hash) DO NOTHING` and counts inserted v
 ## 6. Configuration
 
 `.env` (documented in `.env.example`): `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `API_URL` (UI -> API, default `http://localhost:8000`),
-`DB_PATH` (default `feedback.db`), optional `JEV_API_KEY` and `ANALYZER` (`llm` | `jev`, default `llm`).
+`DB_PATH` (default `feedback.db`), `ANALYZER` (`llm` | `jev`, default `llm`) and `JEV_MODEL` (default `typesafe/jev-1.14`).
+Jev uses the same OpenRouter key.
 
 ## 7. Error handling and security
 
@@ -174,7 +182,7 @@ Saving uses `INSERT ... ON CONFLICT(text_hash) DO NOTHING` and counts inserted v
 
 - `generate_dataset.py` asks a strong model (not one of the candidates) for fictional reviews with a known score and theme, covering normal cases plus sarcasm, mixed reviews, typos, emoji, one-liners, non-English and no-theme reviews. Output is `eval/dataset.jsonl`; about 20 rows are hand-checked.
 - `bakeoff.py` runs each candidate in `candidates.toml` through the real runner and writes a markdown table: label accuracy, score +/-1, theme accuracy, schema-valid batch rate, cost per 100 reviews, measured time for the full 100-review run, actual models seen.
-- Candidates are chosen from the Artificial Analysis intelligence-vs-price frontier at run time, plus `typesafe/jev-router` and the Jev classifier if accessible.
+- Candidates are chosen from the Artificial Analysis intelligence-vs-price frontier at run time, plus `typesafe/jev-router` and the Jev classifier (`jev-1.14`, `jev-1.13`).
 
 ## 10. Key decisions and tradeoffs
 

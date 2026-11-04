@@ -12,6 +12,7 @@ import tomllib
 from collections import defaultdict
 from pathlib import Path
 
+from app.analyzers.jev import JevAnalyzer
 from app.analyzers.llm import LLMAnalyzer
 from app.config import settings
 from app.db import DEFAULT_THEMES
@@ -31,10 +32,13 @@ def load_dataset() -> list[dict]:
 
 
 async def evaluate(candidate: dict, rows: list[dict]) -> dict:
-    llm = OpenRouterClient(
-        settings.openrouter_api_key, candidate["model"], candidate.get("reasoning") or None
-    )
-    analyzer = LLMAnalyzer(llm)
+    if candidate.get("analyzer") == "jev":
+        analyzer = llm = JevAnalyzer(settings.openrouter_api_key, candidate["model"])
+    else:
+        llm = OpenRouterClient(
+            settings.openrouter_api_key, candidate["model"], candidate.get("reasoning") or None
+        )
+        analyzer = LLMAnalyzer(llm)
     items = [ReviewIn(id=r["id"], text=r["text"]) for r in rows]
     start = time.perf_counter()
     try:

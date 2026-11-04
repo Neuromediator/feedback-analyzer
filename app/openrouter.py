@@ -67,11 +67,7 @@ class OpenRouterClient:
         except httpx.HTTPError as e:
             raise AnalyzerError(f"Could not reach OpenRouter: {type(e).__name__}") from e
         if resp.status_code != 200:
-            message = _error_message(resp)
-            raise AnalyzerError(
-                f"OpenRouter error {resp.status_code}: {message}",
-                fatal=resp.status_code in FATAL_STATUSES,
-            )
+            raise response_error(resp)
         body = resp.json()
         try:
             content = json.loads(body["choices"][0]["message"]["content"])
@@ -81,6 +77,14 @@ class OpenRouterClient:
         served = body.get("model") or self.model
         self.models_seen.add(served)
         return ChatResult(data=content, model=served)
+
+
+def response_error(resp: httpx.Response) -> AnalyzerError:
+    """Turn a non-200 OpenRouter response into an AnalyzerError."""
+    return AnalyzerError(
+        f"OpenRouter error {resp.status_code}: {_error_message(resp)}",
+        fatal=resp.status_code in FATAL_STATUSES,
+    )
 
 
 def _error_message(resp: httpx.Response) -> str:

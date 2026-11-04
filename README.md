@@ -43,21 +43,25 @@ candidate through the real pipeline; full table in [docs/bakeoff.md](docs/bakeof
 
 | Candidate | Label acc | Cost / 100 reviews | Time (100 reviews) |
 |---|---|---|---|
-| GPT-6 Luna, low reasoning (default) | 99% | $0.0018 | 6.0 s |
-| Claude Haiku 5.5, low reasoning | 95% | $0.0021 | 2.7 s |
-| DeepSeek V4.1 Flash | 100% | $0.0047 | 16.9 s |
-| Jev Router | 100% | $0.0420 | 26.1 s |
+| GPT-6 Luna, low reasoning (default) | 98% | $0.0018 | 14.0 s |
+| Jev 1.14 (`ANALYZER=jev`) | 99% | $0.0025 | 3.9 s |
+| Claude Haiku 5.5, low reasoning | 97% | $0.0021 | 2.7 s |
+| DeepSeek V4.1 Flash | 100% | $0.0056 | 16.0 s |
+| Jev Router | 100% | $0.0213 | 23.6 s |
 
-Every candidate met every target, so the default follows the pre-set rule (cheapest that meets all).
-Jev Router was 10-20x more expensive here and answered from three different models in one run.
+Every candidate met every target, so the default follows the pre-set rule (cheapest that meets all). Run-to-run noise is
+a few points of accuracy and 2x in time (GPT-6 Luna low took 6.0 s in an earlier run), so gaps this small are not
+meaningful. Jev 1.14 is the Jev decision model (not generative); it costs about the same and is consistently fast.
+Jev Router is a router, not that model: it answered from three different chat models in one run and its cost varied
+between runs ($0.02-0.04).
 
 ## Limitations
 
 - One theme per review: a mixed review ("great food, awful service") is filed under its dominant theme.
 - The test set is synthetic and easy; real reviews will score lower. Treat the table as a smoke test, not a benchmark.
 - Jobs live in memory and are lost when the API restarts. Saved reviews are kept in `feedback.db`.
-- The Jev classifier (a non-generative model from TypeSafe) is not integrated: it is not on OpenRouter
-  and its API is in limited early access. The analyzer interface in `app/analyzers/` is where it would plug in.
+- Jev (`ANALYZER=jev`) scores each review with one request and does not write suggestions; the suggestion step
+  still uses the chat model.
 
 ## Docs
 

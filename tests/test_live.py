@@ -25,3 +25,18 @@ async def test_live_analyze_and_suggest():
     suggestions = await Suggester(llm).suggest([(1, batch[1].text, by_id[1].theme)])
     assert suggestions[1]
     await llm.aclose()
+
+
+async def test_live_jev_analyze():
+    from app.analyzers.jev import JevAnalyzer
+
+    s = Settings()
+    jev = JevAnalyzer(s.openrouter_api_key, s.jev_model)
+    batch = [
+        ReviewIn(id=0, text="Amazing pasta, loved it"),
+        ReviewIn(id=1, text="We waited an hour for cold soup"),
+    ]
+    by_id = {r.id: r for r in await jev.analyze(batch, THEMES)}
+    assert by_id[0].score >= 4 and by_id[1].score <= 2
+    assert by_id[0].model.startswith("typesafe/jev")
+    await jev.aclose()

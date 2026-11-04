@@ -146,7 +146,7 @@ If no candidate meets a target, record the best result and the gap in the README
 | One theme per review loses information on mixed reviews | Documented; the eval set includes mixed reviews to show the effect. |
 | Synthetic data is cleaner than real reviews | Hard cases are included deliberately; the generator model differs from the evaluated models; ~20 reviews hand-checked. |
 | Strict JSON schema support differs by OpenRouter provider | Send `require_parameters: true`; bake-off records schema-validity rate per model. |
-| Jev access: limited early access, API shape unverified | First plan step checks access. If unavailable, the Jev analyzer is dropped and this is documented. |
+| Jev access and API shape | Resolved: `typesafe/jev-1.14` is available on OpenRouter through the Decisions API with the normal key; implemented in `analyzers/jev.py`. |
 | Jev Router picks a different model per request | Candidate in the bake-off only; the actual model is stored per row. |
 | Prompt injection inside reviews | Delimiting, instruction to ignore, enum-constrained output. Worst case is a wrong label. |
 | In-memory job store is lost on restart | Acceptable for local use; documented. |

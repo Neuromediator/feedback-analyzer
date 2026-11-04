@@ -1,4 +1,5 @@
 # Models compared by the bake-off. reasoning = OpenRouter reasoning effort (empty = model default).
+# analyzer = "jev" uses the Decisions API instead of chat completions.
 
 [[candidate]]
 name = "haiku-5.5"
@@ -29,3 +30,13 @@ model = "google/gemini-3.5-flash-lite"
 [[candidate]]
 name = "jev-router"
 model = "typesafe/jev-router"
+
+[[candidate]]
+name = "jev-1.14"
+model = "typesafe/jev-1.14"
+analyzer = "jev"
+
+[[candidate]]
+name = "jev-1.13"
+model = "typesafe/jev-1.13"
+analyzer = "jev"

@@ -5,11 +5,11 @@ Design details are in `architecture.md`.
 
 ## Status
 
-Steps 0-10 and 12 are done; Step 11 (Jev classifier) is not, because the classifier is not on OpenRouter and
-its API is in limited early access. Deviations from the plan: the input cap is 100 reviews (not 500), the default
-model is GPT-6 Luna with low reasoning (bake-off result in `bakeoff.md`), and the API starts with `--factory`.
-Verification: 49 offline tests, one live test (`pytest -m live`), and a Playwright walkthrough of the UI
-(screenshots in `docs/screenshots/`).
+All steps are done. Step 11 (Jev) was first marked blocked on a wrong assumption (that the classifier was not on
+OpenRouter); it is available as `typesafe/jev-1.14` through the Decisions API and is implemented. Deviations from the plan:
+the input cap is 100 reviews (not 500), the default model is GPT-6 Luna with low reasoning (bake-off result in
+`bakeoff.md`), and the API starts with `--factory`. Verification: 66 offline tests, two live tests (`pytest -m live`), and a
+Playwright walkthrough of the UI (screenshots in `docs/screenshots/`). Current state: `status.md`.
 
 ## Step 0: Verify unknowns (no app code)
 
@@ -98,6 +98,6 @@ Pure logic and tests first, then the risky external pieces (LLM, persistence), t
 
 ## Open questions
 
-- Jev access method and pricing (Step 0).
+- Jev access method and pricing (Step 0): resolved, OpenRouter Decisions API, $0.042 per 1M input tokens.
 - Whether `usage.cost` is available from OpenRouter for cost measurement or must be computed from token counts and model prices.
 - Real Google Maps / Yelp export field names: the parser uses the common candidate names; sample files in `samples/` will mirror those shapes with fictional data.
